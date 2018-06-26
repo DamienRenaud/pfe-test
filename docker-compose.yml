@@ -1,0 +1,7 @@
+version: '2'
+services: 
+  tomcat:
+    container_name: tomcat_pfe
+    build: docker/tomcat
+    ports: 
+      - "8090:8080"
