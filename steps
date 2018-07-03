@@ -1,0 +1,57 @@
+# Deployer un Docker registry (slnvmrt01)
+openssl req -newkey rsa:4096 -nodes -sha256 -keyout certs/domain.key -x509 -days 365 -out certs/domain.crt
+docker run -d --restart=always --name registry -v `pwd`/certs:/certs \
+           -e REGISTRY_HTTP_ADDR=0.0.0.0:443 \
+           -e REGISTRY_HTTP_TLS_CERTIFICATE=/certs/domain.crt \
+           -e REGISTRY_HTTP_TLS_KEY=/certs/domain.key -p 4444:443 registry:2
+
+# build war for a project :
+docker run --rm -it -v $(pwd):/project -w /project maven mvn package
+
+# CLI rancher
+- For linux
+    curl -L https://releases.rancher.com/cli/v2.0.1/rancher-linux-amd64-v2.0.1.tar.gz -o rancher.tar.gz
+    tar xvzf rancher.tar.gz
+    mv rancher-v2.0.1/rancher /usr/bin/
+    rancher login URL_RANCHER:4443 -t TOKEN_KUBECONFIG
+    rancher projects create --cluster poc-pfe pfe-project
+    rancher login URL_RANCHER:4443/.../PROJECT_ID -t TOKEN_KUBECONFIG
+    rancher namespaces create NS_NAME
+    rancher namespaces associate NS_NAME PROJECT_ID
+
+
+- Pour les composants remote
+    - On change les confs pour les dépendances
+        - Dépendance en remote aussi : On met du localhost
+        - Dépendance sur poste dev : On récupère l'IP
+    - On build les WARs
+    - On créé le Dockerfile
+    - On build l'image
+        docker build --tag pfe_tomcat_remote -f Dockerfile-remote .
+    - On push l'image (ATTENTION : le registry doit être accessible => penser au ca.crt dans le POC)
+        docker image tag pfe_tomcat_remote slnvmrt01.ntes.fr.sopra:4444/pfe_tomcat_remote
+        docker push slnvmrt01.ntes.fr.sopra:4444/pfe_tomcat_remote
+    - On créé les deployments et services
+    - On apply les confs k8s
+        rancher kubectl apply -f pfe-deployment.yaml --namespace pfe-ns 
+        rancher kubectl apply -f pfe-service.yaml --namespace pfe-ns 
+
+- Pour les composants en local
+    - On récupère IP/PORT remote
+        IP      = slnvmrt01.ntes.fr.sopra
+        PORT    = rancher kubectl get services/pfe-service --namespace pfe-ns -o go-template='{{(index .spec.ports 0).nodePort}}'
+    - On change les confs pour les dépendances
+        - Dépendances en remote : On met les nouvelles valeurs récupérées
+        - Dépendances en local : On met du localhost (Ou le nom du conteneur avec un docker-compose ?)
+    - On build les WARs
+    - On créé le Dockerfile
+
+
+- Créer Dockefile remote
+- Créer docker-compose remote
+- Build image remote
+- Push image remote vers slnvmrt01.ntes.fr.sopra:4444
+- Créer deployment 
+
+- Créer Dockerfile local
+- Build image locale
