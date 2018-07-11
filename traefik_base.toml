@@ -1,0 +1,194 @@
+################################################################
+# Global configuration
+################################################################
+
+# Enable debug mode
+#
+# Optional
+# Default: false
+#
+# debug = true
+
+# Log level
+#
+# Optional
+# Default: "ERROR"
+#
+# logLevel = "DEBUG"
+
+# Entrypoints to be used by frontends that do not specify any entrypoint.
+# Each frontend can specify its own entrypoints.
+#
+# Optional
+# Default: ["http"]
+#
+# defaultEntryPoints = ["http", "https"]
+
+################################################################
+# Entrypoints configuration
+################################################################
+
+# Entrypoints definition
+#
+# Optional
+# Default:
+[entryPoints]
+    [entryPoints.http]
+    address = ":80"
+
+################################################################
+# Traefik logs configuration
+################################################################
+
+# Traefik logs
+# Enabled by default and log to stdout
+#
+# Optional
+#
+# [traefikLog]
+
+# Sets the filepath for the traefik log. If not specified, stdout will be used.
+# Intermediate directories are created if necessary.
+#
+# Optional
+# Default: os.Stdout
+#
+# filePath = "log/traefik.log"
+
+# Format is either "json" or "common".
+#
+# Optional
+# Default: "common"
+#
+# format = "common"
+
+################################################################
+# Access logs configuration
+################################################################
+
+# Enable access logs
+# By default it will write to stdout and produce logs in the textual
+# Common Log Format (CLF), extended with additional fields.
+#
+# Optional
+#
+# [accessLog]
+
+# Sets the file path for the access log. If not specified, stdout will be used.
+# Intermediate directories are created if necessary.
+#
+# Optional
+# Default: os.Stdout
+#
+# filePath = "/path/to/log/log.txt"
+
+# Format is either "json" or "common".
+#
+# Optional
+# Default: "common"
+#
+# format = "common"
+
+################################################################
+# API and dashboard configuration
+################################################################
+
+# Enable API and dashboard
+[api]
+
+  # Name of the related entry point
+  #
+  # Optional
+  # Default: "traefik"
+  #
+  # entryPoint = "traefik"
+
+  # Enabled Dashboard
+  #
+  # Optional
+  # Default: true
+  #
+    dashboard = true
+
+################################################################
+# Ping configuration
+################################################################
+
+# Enable ping
+[ping]
+
+  # Name of the related entry point
+  #
+  # Optional
+  # Default: "traefik"
+  #
+  # entryPoint = "traefik"
+
+################################################################
+# Docker configuration backend
+################################################################
+
+# Enable Docker configuration backend
+[docker]
+
+# Docker server endpoint. Can be a tcp or a unix socket endpoint.
+#
+# Required
+# Default: "unix:///var/run/docker.sock"
+#
+endpoint = "tcp://localhost:2375"
+
+# Default domain used.
+# Can be overridden by setting the "traefik.domain" label on a container.
+#
+# Optional
+# Default: ""
+#
+# domain = "docker.localhost"
+
+# Expose containers by default in traefik
+#
+# Optional
+# Default: true
+#
+# exposedByDefault = true
+
+[file]
+
+[backends]
+    [backends.drd_pfe_wsa]
+        [backends.drd_pfe_wsa.servers.server1]
+        url = "http://172.22.182.8:8081"
+    [backends.drd_pfe_wsb]
+        [backends.drd_pfe_wsb.servers.server1]
+        url = "http://172.22.182.8:8082"
+    [backends.drd_pfe_wsc]
+        [backends.drd_pfe_wsc.servers.server1]
+        url = "http://172.22.182.8:8083"
+    [backends.drd_pfe_wsd]
+        [backends.drd_pfe_wsd.servers.server1]
+        url = "http://172.22.182.8:8084"
+
+[frontends]
+    [frontends.drd_pfe_wsa]
+    backend = "drd_pfe_wsa"
+        [frontends.drd_pfe_wsa.routes.drenaud]
+        rule = "Host:sopra.cnam.traefik;PathPrefixStrip: /drd/pfe/wsa"
+    [frontends.drd_pfe_wsb]
+    backend = "drd_pfe_wsb"
+        [frontends.drd_pfe_wsb.routes.drenaud]
+        rule = "Host:sopra.cnam.traefik;PathPrefixStrip: /drd/pfe/wsb"
+    [frontends.drd_pfe_wsc]
+    backend = "drd_pfe_wsc"
+        [frontends.drd_pfe_wsc.routes.drenaud]
+        rule = "PathPrefixStrip: /drd/pfe/wsc"
+    [frontends.drd_pfe_wsd]
+    backend = "drd_pfe_wsd"
+        [frontends.drd_pfe_wsd.routes.drenaud]
+        rule = "PathPrefixStrip: /drd/pfe/wsd"
+
+[web]
+address = ":8080"
+
+[rest]
+    entryPoint = "traefik"

@@ -1,0 +1,41 @@
+defaultEntryPoints = ["http", "https"]
+
+[entryPoints]
+    [entryPoints.http]
+        address = ":80"
+    [entryPoints.https]
+        address = ":443"
+
+
+[file]
+
+[backends]
+    [backends.wsa]
+    url = "http://172.22.182.8:8081"
+    [backends.wsb]
+    url = "http://172.22.182.8:8082"
+    [backends.wsc]
+    url = "http://172.22.182.8:8083"
+    [backends.wsd]
+    url = "http://172.22.182.8:8084"
+
+[frontends]
+    [frontends.wsa]
+    backend = "wsa"
+        [frontends.wsa.routes.drenaud]
+        rule = "Host:drenaud.wsa"
+    [frontends.wsb]
+    backend = "wsb"
+        [frontends.wsb.routes.drenaud]
+        rule = "Host:drenaud.wsb"
+    [frontends.wsc]
+    backend = "wsc"
+        [frontends.wsc.routes.drenaud]
+        rule = "Host:drenaud.wsc"
+    [frontends.wsd]
+    backend = "wsd"
+        [frontends.wsd.routes.drenaud]
+        rule = "Host:drenaud.wsd"
+
+[web]
+address = ":8080"
